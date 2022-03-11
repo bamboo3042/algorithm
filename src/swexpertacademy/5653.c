@@ -1,73 +1,16 @@
 #include <stdio.h>
 
-typedef struct {
-    int x, y;
+typedef struct{
     int wait_time;
     int active_time;
     int status;
+    int base;
 } cell;
 
-cell *wait_cell[352];
-cell *active_cell[352];
-int wait_size;
-int active_size;
-int map[352][352] = {0};
-int status[352][352] = {0};
-
-void swap_cell(cell *a, cell *b){
-    cell *temp = a;
-    a = b;
-    b = temp;
-}
-
-void wait_insert(int x, int y){
-    cell *temp_cell = (cell*)malloc(sizeof(cell));
-    temp_cell -> x = x;
-    temp_cell -> y = y;
-    temp_cell -> wait_time = map[x][y];
-    wait_cell[++wait_size] = temp_cell;
-    for(int i = wait_size; i > 0; i/2){
-        if(wait_cell[i] -> wait_time < wait_cell[i/2] -> wait_time){
-            swap_cell(wait_cell[i], wait_cell[i/2]);
-        }
-        else break;
-    }
-}
-
-void active_insert(cell *c){
-    c -> active_time = map[c -> x][c -> y];
-    active_cell[++active_size] = c;
-    for(int i = active_size; i > 0; i/2){
-        if(active_cell[i] -> active_time < active_cell[i/2] -> active_time){
-            swap_cell(active_cell[i], active_cell[i/2]);
-        }
-        else break;
-    }
-}
-
-void wait_check(){
-    int i;
-    while(wait_cell[1] != NULL && wait_cell[1] -> wait_time == 0){
-        active_insert(wait_cell[1]);
-        wait_cell[1] = wait_cell[wait_size];
-        wait_cell[wait_size--] = NULL;
-        i = 1;
-        while((i*2 <= wait_size && wait_cell[i*2] -> wait_time < wait_cell[i]) || (i*2 + 1 <= wait_size && wait_cell[i*2 + 1] -> wait_time < wait_cell[i])){
-            if(wait_cell[i*2] -> wait_time < wait_cell[i] && wait_cell[i*2+1] -> wait_time > wait_cell[i*2]){
-                swap_cell(wait_cell[i], wait_cell[i*2]);
-                i *= 2;
-            }
-            else{
-                swap_cell(wait_cell[i], wait_cell[i*2+1]);
-                i = i*2 + 1;
-            }
-        }
-    }
-}
-
-void active_check(){
-
-}
+int dir[4][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+cell map[2][352][352];
+int N, M, K, maxN, maxM, x, answer;
+int cur_map;
 
 int main(void)
 {
@@ -77,6 +20,78 @@ int main(void)
 	scanf("%d", &T);
 	for (test_case = 1; test_case <= T; ++test_case)
 	{
+        int N, M, K, maxN, maxM, x, answer = 0;
+        int cur_map = 0;
+
+        scanf("%d %d %d", &N, &M, &K);
+        for(int n = 0; n < N + K + 2; n++){
+            for(int m = 0; m < M + K + 2; m++){
+                map[0][n][m].status = 0;
+                map[1][n][m].status = 0;
+            }
+        }
+        for(int n = K/2 + 1; n < K/2+N + 1; n++){
+            for(int m = K/2 + 1; m < K/2+M + 1; m++){
+                scanf("%d", &x);
+                if(x){
+                    map[0][n][m].status = 2;
+                    map[0][n][m].wait_time = x;
+                    map[0][n][m].base = x;
+                }
+            }
+        }
+        maxN = N + K + 2;
+        maxM = M + K + 2;
+        cur_map = 0;
+        for(int  k = 0; k < K; k++){
+            for(int n = 0; n < maxN; n++){
+                for(int m = 0; m < maxM; m++){
+                    if(map[cur_map][n][m].status == 1){
+                        map[1-cur_map][n][m].status = map[cur_map][n][m].status;
+                    }
+                    else if(map[cur_map][n][m].status == 2){
+                        map[1-cur_map][n][m] = map[cur_map][n][m];
+                        map[1-cur_map][n][m].wait_time--;
+                        if(map[1-cur_map][n][m].wait_time == 0){
+                            map[1-cur_map][n][m].status = 3;
+                            map[1-cur_map][n][m].active_time = map[1-cur_map][n][m].base;
+                        }
+                    }
+                    else if(map[cur_map][n][m].status == 3){
+                        if(map[cur_map][n][m].active_time == map[cur_map][n][m].base){
+                            for(int i = 0; i < 4; i++){
+                                int n2 = n + dir[i][0];
+                                int m2 = m + dir[i][1];
+                                if(map[cur_map][n2][m2].status == 0){
+                                    if(map[1-cur_map][n2][m2].status == 0){
+                                        map[1-cur_map][n2][m2].status = 2;
+                                        map[1-cur_map][n2][m2].base = map[cur_map][n][m].base;
+                                        map[1-cur_map][n2][m2].wait_time = map[cur_map][n][m].base;
+                                    }
+                                    else if(map[1-cur_map][n2][m2].status == 2 && map[cur_map][n][m].base > map[1-cur_map][n2][m2].base){
+                                        map[1-cur_map][n2][m2].base = map[cur_map][n][m].base;
+                                        map[1-cur_map][n2][m2].wait_time = map[cur_map][n][m].base;
+                                    }
+                                }
+                            }
+                        }
+
+                        map[1-cur_map][n][m].active_time = map[cur_map][n][m].active_time - 1;
+                        map[1-cur_map][n][m].status = map[cur_map][n][m].status;
+                        if(map[1-cur_map][n][m].active_time == 0) map[1-cur_map][n][m].status = 1;
+                    }
+                }
+            }
+            cur_map = 1 - cur_map;
+        }
+		answer = 0;
+        for(int n = 0; n < maxN; n++){
+            for(int m = 0; m < maxM; m++){
+                if(map[cur_map][n][m].status > 1) answer++;
+            }
+        }
+
+        printf("#%d %d\n", test_case, answer);
 	}
 	return 0; //정상종료시 반드시 0을 리턴해야 합니다.
 }
