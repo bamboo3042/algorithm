@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-int a, b, K, x, temp, max;
-int **arr;
+unsigned a, b, K, temp, max;
+unsigned *arr;
 int main(void)
 {
 	int test_case;
@@ -16,25 +16,20 @@ int main(void)
             continue;
         }
         max = a > b ? a : b;
-        arr = (int**)malloc(sizeof(int*) * 2);
-        arr[0] = (int*)calloc(max, sizeof(int));
-        arr[1] = (int*)calloc(max, sizeof(int));
-        arr[0][0] = a;
-        arr[1][0] = b;
+        arr = (unsigned*)malloc(sizeof(unsigned*) * max);
+        arr[0] = a < b ? a : b;
         temp = 0;
         do{
-            if(arr[0][temp] <= arr[1][temp]){
-                arr[1][temp+1] = arr[1][temp] - arr[0][temp];
-                arr[0][temp+1] = arr[0][temp] * 2;
+            if(a <= b){
+                b = b - a;
+                a *= 2;
             }else{
-                arr[0][temp+1] = arr[0][temp] - arr[1][temp];
-                arr[1][temp+1] = arr[1][temp] * 2;
+                a = a - b;
+                b *= 2;
             }
-            temp++;
-        }while(arr[0][0] != arr[0][temp] && arr[1][0] != arr[0][temp]);
-        printf("#%d %d\n", test_case, arr[0][K%temp] < arr[1][K%temp] ? arr[0][K%temp] : arr[1][K%temp]);
-        free(arr[0]);
-        free(arr[1]);
+            arr[++temp] = a < b ? a : b;
+        }while(arr[temp] != arr[0] && K > temp);
+        printf("#%u %u\n", test_case, arr[K == temp ? K : K % temp]);
         free(arr);
 	}
 	return 0; //정상종료시 반드시 0을 리턴해야 합니다.
