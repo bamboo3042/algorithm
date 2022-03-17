@@ -5,15 +5,25 @@ unsigned *arr;
 unsigned mod = 1000003;
 unsigned temp;
 unsigned answer = 0;
-unsigned main(void)
+char c;
+int main(void)
 {
 	int test_case;
 	int T;
 	setbuf(stdout, NULL);
-	scanf("%d", &T);
+	scanf("%d\n", &T);
 	for (test_case = 1; test_case <= T; ++test_case)
 	{
-        scanf("%u %u %u\n", &a, &d, &n);
+        temp = 0;
+        while((c = getchar()) != ' ') temp = temp*10 + (c-'0');
+        a = temp;
+        temp = 0;
+        while((c = getchar()) != ' ') temp = temp*10 + (c-'0');
+        d = temp;
+        temp = 0;
+        while((c = getchar()) != '\n' && c != EOF) temp = temp*10 + (c-'0');
+        n = temp;
+
         arr = (unsigned*)malloc(sizeof(unsigned) * mod);
         temp = 0;
         arr[temp] = a;
