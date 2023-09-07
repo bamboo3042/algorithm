@@ -1,12 +1,19 @@
 package backjoon
 
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.util.*
 
-fun main(): Unit = with(BufferedReader(InputStreamReader(System.`in`))) {
-    println(
-        Solution().solution(3, 5,	arrayOf(intArrayOf(10, 60, 1), intArrayOf(15, 100, 3), intArrayOf(20, 30, 1), intArrayOf(30, 50, 3), intArrayOf(50, 40, 1), intArrayOf(60, 30, 2), intArrayOf(65, 30, 1), intArrayOf(70, 100, 2)))
-    )
+fun main() = with(Scanner(System.`in`)) {
+    val (M, N) = readln().split(" ").map { it.toInt() }
+    val words = listOf("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+    val list = (M .. N).sortedBy { n ->
+        var temp = ""
+        for (s in n.toString()) temp += words[s.code - 48]
+        temp
+    }
+    val result = StringBuilder()
+    for ((count, n) in list.withIndex()) {
+        result.append("$n ")
+        if ((count + 1) % 10 == 0) result.appendLine()
+    }
+    println(result)
 }
-
