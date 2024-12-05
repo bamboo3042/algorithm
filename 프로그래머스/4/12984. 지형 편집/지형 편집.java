@@ -1,31 +1,32 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.PriorityQueue;
 
 public class Solution {
     public long solution(int[][] land, int P, int Q) {
-        List<Integer> heightList = new ArrayList<>();
-        
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        long removePrice = 0L;
+
         for (int[] row : land) {
             for (int height : row) {
-                heightList.add(height);
+                pq.add(height);
+                removePrice += height;
             }
         }
 
-        Collections.sort(heightList);
-
+        removePrice *= Q;
         long addPrice = 0L;
-        long removePrice = heightList.stream().mapToLong(Integer::longValue).sum() * Q;
         long answer = removePrice;
+        int index = 0;
+        int prevHeight = 0;
 
-        for (int index = 0; index < heightList.size(); index++) {
-            long diff = 0;
-            
-            if(index > 0) diff = (long) (heightList.get(index) - heightList.get(index - 1));
-            else diff = heightList.get(0);
+        while (!pq.isEmpty()) {
+            int height = pq.poll();
+            long diff = (long) (height - prevHeight);
 
             addPrice += diff * index * P;
-            removePrice -= diff * (heightList.size() - index) * Q;
+            removePrice -= diff * (pq.size() + 1) * Q;
+
+            index++;
+            prevHeight = height;
 
             answer = Math.min(answer, addPrice + removePrice);
         }
