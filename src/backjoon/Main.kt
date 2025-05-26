@@ -1,74 +1,94 @@
 package backjoon
 
-import java.util.*
-import kotlin.collections.ArrayDeque
-import kotlin.math.absoluteValue
-import kotlin.math.sqrt
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 fun main(args : Array<String>) {
-    println(Solution().solution(
-        intArrayOf(-5, 0, 2, 1, 2),
-        arrayOf(
-            intArrayOf(0, 1),
-            intArrayOf(3, 4),
-            intArrayOf(2, 3),
-            intArrayOf(0, 3),
-        )
-    ))
+//    println(
+//        "answer: ${Solution().solution(30, arrayOf("d", "e", "bb", "aa", "ae"))}"
+//    )
+
+    val map = mutableMapOf(
+        User(1) to "A",
+        User(2) to "B",
+        User(3) to "C"
+    )
+
+    val keepIds = listOf(1, 3)
+
+    map.keys.removeIf { it.id !in keepIds }
+
+    println(map)  // 출력 결과: {User(id=1)=A, User(id=3)=C}
+
+//    Solution().test()
 }
 
+data class User(val id : Int)
+//d-4, e-5, aa-27, bb-54, ae-131
+//temp: 30 count: 4
+//temp: 31 count: 5
+//temp: 32 count: 27
+//count: 3
+//54
+//temp: 33
+//answer: ag
+
 class Solution {
-    lateinit var road: List<MutableSet<Int>>
-    lateinit var count: IntArray
-    lateinit var sumArray: LongArray
-    val pq = PriorityQueue<Pair<Int, Int>> { o1, o2 -> o1.second - o2.second }
-
-    fun solution(a: IntArray, edges: Array<IntArray>): Long {
-        road = List(a.size) { mutableSetOf() }
-        count = IntArray(a.size) { 0 }
-        sumArray = LongArray(a.size) { a[it].toLong() }
-
-        edges.forEach { (a, b) ->
-            road[a].add(b)
-            road[b].add(a)
-            count[a]++
-            count[b]++
+    fun test() {
+        for (i in 1L .. 800) {
+            val str = i.toStr()
+            println("$i.\t$str\t${str.toLong()}")
         }
-
-        count.forEachIndexed { index, i ->
-            pq.offer(index to i)
-        }
-
-        return calculate(sumArray)
     }
 
-    private fun calculate(a: LongArray): Long {
-        var answer = 0L
+    fun solution(n: Long, bans: Array<String>): String {
+        val newBans = bans.sortedWith(compareBy({it.toLong()}))
+        var temp = n
+        var count = 0
 
-        while (pq.isNotEmpty()) {
-            val (index, tempCount) = pq.poll()
+        println(newBans.joinToString(", ") { "$it-${it.toLong()}" })
 
-            if (tempCount > 1) {
-                pq.offer(index to count[index])
-                continue
-            }
-
-            val next = road[index].firstOrNull()
-
-            if (next != null) {
-                road[index].clear()
-                road[next].remove(index)
-
-                answer += a[index].absoluteValue
-                a[next] += a[index]
-                count[next]--
-            }
-            else {
-                return if (a[index] == 0L) answer
-                else -1
-            }
+        while (count != newBans.size && newBans[count].toLong() <= temp) {
+            println("temp: $temp count: ${newBans[count].toLong()}")
+            count++
+            temp++
         }
 
-        return answer
+        println("count: $count")
+        if(count != newBans.size) {
+            println(newBans[count].toLong())
+        }
+        println("temp: $temp")
+
+        return temp.toStr()
+    }
+
+    private fun Long.toStr(): String {
+        var result = ""
+        var n = this
+
+        while (n > 0) {
+            val mod = (n - 1) % 26
+            result = (mod + 'a'.code).toInt().toChar() + result
+            n = (n - 1) / 26
+        }
+
+        return result
+    }
+
+    private fun String.toLong(): Long {
+        var number = 0L
+
+        this.reversed().forEachIndexed { i, c ->
+            number += (c - 'a' + 1) * (26L.pow(i))
+        }
+
+        return number
+    }
+
+    private fun Long.pow(exp: Int): Long {
+        var result = 1L
+        repeat(exp) { result *= this }
+        return result
     }
 }
