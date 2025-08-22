@@ -15,12 +15,12 @@ class Solution {
         for(i in 1 until n) {
             val prev = i - 1
             if(tops[i] == 0) {
-                dp[i][0] = (dp[i-1][0] * 2 + dp[i-1][1])
-                dp[i][1] = (dp[i-1][0] + dp[i-1][1])
+                dp[i][0] = (dp[prev][0] * 2 + dp[prev][1])
+                dp[i][1] = (dp[prev][0] + dp[prev][1])
             }
             else {
-                dp[i][0] = (dp[i-1][0] * 3 + dp[i-1][1] * 2)
-                dp[i][1] = (dp[i-1][0] + dp[i-1][1])
+                dp[i][0] = (dp[prev][0] * 3 + dp[prev][1] * 2)
+                dp[i][1] = (dp[prev][0] + dp[prev][1])
             }
             
             dp[i][0] %= DIV
