@@ -1,14 +1,24 @@
 class Solution {
     fun solution(info: Array<IntArray>, n: Int, m: Int): Int {
-        val sorted = info.sortedArrayWith(compareBy({ -(it[0] / it[1]) }, { -it[0] }, { it[1] }))
-        val sum = intArrayOf(0, 0)
+        val totalA = info.sumOf { it[0] }
+        val dp = IntArray(m) { -1 }
+        dp[0] = 0
 
-        sorted.forEach { (a, b) ->
-            if (b + sum[1] < m) sum[1] = sum[1] + b
-            else sum[0] = sum[0] + a
+        for ((a, b) in info) {
+            for (curB in m - 1 downTo 0) {
+                if (dp[curB] == -1) continue
+
+                val nextB = curB + b
+                if (nextB >= m) continue
+
+                val nextA = dp[curB] + a
+                if (nextA > dp[nextB]) dp[nextB] = nextA
+            }
         }
 
-        return if (sum[0] >= n) -1
-        else sum[0]
+        val maxAForB = dp.maxOrNull() ?: 0
+        val minTrace = totalA - maxAForB
+
+        return if (minTrace >= n) -1 else minTrace
     }
 }
