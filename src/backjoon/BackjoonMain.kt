@@ -1,15 +1,17 @@
 package backjoon
 
 fun main() = with(System.`in`.bufferedReader()) {
-    val (a, b, c) = readLine().split(" ").map { it.toInt() }.sorted()
+    val (N, K) = readLine()!!.split(' ').map { it.toInt() }
+    val items = Array(N) { readLine().split(' ').map(String::toInt) }
+    val dp = IntArray(K + 1) { 0 }
 
-    val answer = when {
-        a == b && b == c -> 10000 + a * 1000
-        a == b -> 1000 + a * 100
-        b == c -> 1000 + b * 100
-        a == c -> 1000 + a * 100
-        else -> c * 100
+    for (i in 0 until N) {
+        val (w, v) = items[i]
+
+        for (j in K downTo 1) {
+            if (w <= j) dp[j] = maxOf(dp[j], dp[j - w] + v)
+        }
     }
 
-    println(answer)
+    println(dp[K])
 }
